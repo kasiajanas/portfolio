@@ -1,0 +1,339 @@
+{
+	"info": {
+		"_postman_id": "8095cc27-42ca-4b1e-8ad8-e7a560358b7d",
+		"name": "mfirma",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27340366"
+	},
+	"item": [
+		{
+			"name": "logowanie do systemu",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 302\", function () {\r",
+							"    pm.response.to.have.status(302);\r",
+							"});\r",
+							"pm.test(\"Location header is correct\", function () {\r",
+							"    pm.response.to.have.header(\"Location\");\r",
+							"    pm.response.to.be.header(\"Location\", \"/elite/home.html\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "login",
+							"value": "{{login}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://192.168.1.201:8080/elite/login",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"201"
+					],
+					"port": "8080",
+					"path": [
+						"elite",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dodawanie dokumentu KP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.collectionVariables.set(\"docId\", jsonData.value);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"KP\",\r\n    \"issueDate\": \"2023-09-07T22:00:00.000Z\",\r\n    \"currency\": \"PLN\",\r\n    \"to\": {\r\n        \"name\": \"XYZ Sp. z o.o.\",\r\n        \"nip\": \"000-000-00-00\",\r\n        \"location\": {\r\n            \"street\": \"Kowalskiego 5\",\r\n            \"postCode\": \"00-000\",\r\n            \"city\": \"Warszawa\"\r\n        }\r\n    },\r\n    \"from\": {\r\n        \"name\": \"ABC Sp. z o.o.\",\r\n        \"nip\": \"000-000-00-00\",\r\n        \"location\": {\r\n            \"street\": \"Jana 5\",\r\n            \"postCode\": \"00-000\",\r\n            \"city\": \"Warszawa\"\r\n        }\r\n    },\r\n    \"docNumber\": \"KP 113/k1/2023\",\r\n    \"exchangeRate\": 4.2,\r\n    \"totalAmount\": 1,\r\n    \"title\": \"materiał\",\r\n    \"issuerId\": 1\r\n}"
+				},
+				"url": {
+					"raw": "http://192.168.1.201:8080/elite/doc/cash",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"201"
+					],
+					"port": "8080",
+					"path": [
+						"elite",
+						"doc",
+						"cash"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pobieranie dokumentu KP po ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.collectionVariables.set(\"docNumber\", jsonData.docNumber);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.1.201:8080/elite/doc/cash/{{docId}}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"201"
+					],
+					"port": "8080",
+					"path": [
+						"elite",
+						"doc",
+						"cash",
+						"{{docId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "filtrowanie dokumentu KP po numerze",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Returned 1 document\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.pageData.length).to.eql(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Returned expected document\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.pageData[0].name).to.eql(pm.collectionVariables.get(\"docNumber\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.1.201:8080/elite/doc/cash?docNumber={{docNumber}}&page=1&rows=2",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"201"
+					],
+					"port": "8080",
+					"path": [
+						"elite",
+						"doc",
+						"cash"
+					],
+					"query": [
+						{
+							"key": "docNumber",
+							"value": "{{docNumber}}"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "rows",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "usuwanie dokumentu KP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.1.201:8080/elite/doc/cash/{{docId}}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"201"
+					],
+					"port": "8080",
+					"path": [
+						"elite",
+						"doc",
+						"cash",
+						"{{docId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pobieranie dokumentu KP po ID po usunięciu",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.1.201:8080/elite/doc/cash/{{docId}}",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"201"
+					],
+					"port": "8080",
+					"path": [
+						"elite",
+						"doc",
+						"cash",
+						"{{docId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "docNumber",
+			"value": ""
+		},
+		{
+			"key": "docId",
+			"value": ""
+		}
+	]
+}
